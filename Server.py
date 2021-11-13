@@ -99,6 +99,12 @@ def LeaveSession(sessionID, sessionPass, auth):
             sessionList[int(sessionID)].RemoveUser(auth)
             if not sessionList[int(sessionID)].GetAlive():
                 sessionList[int(sessionID)] == None
+            
+            return "Disconnected"
+        else:
+            return "Incorrect password"
+    else:
+        return "Invalid Session"
 
 @app.route("/AddSong/<sessionID>/<sessionPass>/<songURI>", methods=["POST"])
 def AddSong(sessionID, sessionPass, songURI):

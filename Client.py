@@ -39,6 +39,14 @@ else:
     quit()
 
 while True:
+
+    disconnect = int(input("Would you like to disconnect from the session?\n0: No\n1: Yes\n"))
+    
+    if disconnect:
+        result = http.request("POST", f"{serverRoot}/LeaveSession/{sessionNo}/{internalPass}/{auth}")
+        print(result.data)
+        break
+
     counter = 1
     search = input("What would you like to search for?\n")
 
