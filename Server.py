@@ -95,11 +95,10 @@ def LeaveSession(sessionID, sessionPass, auth):
     Used for the specified `auth` to disconnect from the session under `id`\n
     """
     if sessionList[int(sessionID)]:
-        if sessionList[int(sessionID)].GetInternalPass == sessionPass:
+        if sessionList[int(sessionID)].GetInternalPass() == sessionPass:
             sessionList[int(sessionID)].RemoveUser(auth)
             if not sessionList[int(sessionID)].GetAlive():
                 sessionList[int(sessionID)] == None
-            
             return "Disconnected"
         else:
             return "Incorrect password"
