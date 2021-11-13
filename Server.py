@@ -125,9 +125,11 @@ def AddSong():
     """
     args = request.args.to_dict()
 
-    if args["sessionID"] and args["sessonPass"] and args["songURI"]:
+    print(args)
+
+    if args["sessionID"] and args["sessionPass"] and args["songURI"]:
         if sessionList[int(args["sessionID"])]:
-            if sessionList[int(args["sessionID"])].GetInternalPass() == args["sessonPass"]:
+            if sessionList[int(args["sessionID"])].GetInternalPass() == args["sessionPass"]:
                 sessionList[int(args["sessionID"])].QueueSong(args["songURI"])
                 return "Song queued successfully :)"
             else:
