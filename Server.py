@@ -64,8 +64,8 @@ class Session:
 @app.route("/JoinSession/<id>/<password>/<auth>")
 def JoinSession(id, password, auth):
     """
-    Ran when `/JoinSession/<id>/<password>` requested\n
-    `id` and `password` are both given by the client\n
+    Ran when `/JoinSession/<id>/<password>/<auth>` requested\n
+    `id`, `password` and `auth` are all given by the client\n
     Used for a client to connect to a session under the specified `id`\n
     If the session doesn't exist it creates it with the provided password\n
     Returns either True or False under the `success` key and all other info needed based on whether its successful or not
@@ -87,8 +87,13 @@ def JoinSession(id, password, auth):
         print("Bad")
         return jsonify({"success":False, "message": "WTF did you do wrong?"})
 
-@app.route("/LeaveSession/<sessionID>/<sessionPass>/<auth>")
+@app.route("/LeaveSession/<sessionID>/<sessionPass>/<auth>", methods=["POST"])
 def LeaveSession(sessionID, sessionPass, auth):
+    """
+    Ran when `/LeaveSession/<sessionID>/<sessionPass>/<auth>` requested\n
+    `sessionID`, `sessionPass` and `auth` are all given by the client\n
+    Used for the specified `auth` to disconnect from the session under `id`\n
+    """
     if sessionList[int(sessionID)]:
         if sessionList[int(sessionID)].GetInternalPass == sessionPass:
             sessionList[int(sessionID)].RemoveUser(auth)
@@ -98,14 +103,19 @@ def LeaveSession(sessionID, sessionPass, auth):
 @app.route("/AddSong/<sessionID>/<sessionPass>/<songURI>", methods=["POST"])
 def AddSong(sessionID, sessionPass, songURI):
     """
-    Ran when `/SendClientInfo/<server>/<serverPass>/<playerID>/<playerPass>` requested\n
-    Used by a client to send info to the server which will then be sent on to the host
+    Ran when `/AddSong/<sessionID>/<sessionPass>/<songURI>` requested\n
+    `sessionID`, `sessionPass` and `songURI` are all given in the request\n
+    queues the song specified by `songURI` to session under `sessionID`\n
+    returns a message on if it succeded or not
     """
     if sessionList[int(sessionID)]:
         if sessionList[int(sessionID)].GetInternalPass() == sessionPass:
             sessionList[int(sessionID)].QueueSong(songURI)
-            return "Info recieved successfully :)"
-    return "fail"
+            return "Song queued successfully :)"
+        else:
+            return "The password is incorrect for this session"
+    else:
+        return "Sorry, the session isn't active"
 
 ########################################################################################################
 #                                          - Call Functions -                                          #
