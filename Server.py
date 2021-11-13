@@ -37,6 +37,10 @@ class Session:
         for user in self.connectedUsers:
             headers = {"Authorization": f"Bearer {user}"}
             self.http.request("POST", f"{self.spotifyRoot}/me/player/queue?uri={songURI.replace(':', '%3A')}", headers=headers)
+    def SkipSong(self):
+        for user in self.connectedUsers:
+            headers = {"Authorization": f"Bearer {user}"}
+            self.http.request("POST", f"{self.spotifyRoot}/me/player/next", headers=headers)
 
     def AddUser(self, auth):
         self.connectedUsers.append(auth)
@@ -87,40 +91,65 @@ def JoinSession(id, password, auth):
         print("Bad")
         return jsonify({"success":False, "message": "WTF did you do wrong?"})
 
-@app.route("/LeaveSession/<sessionID>/<sessionPass>/<auth>", methods=["POST"])
-def LeaveSession(sessionID, sessionPass, auth):
+@app.route("/LeaveSession", methods=["POST"])
+def LeaveSession():
     """
     Ran when `/LeaveSession/<sessionID>/<sessionPass>/<auth>` requested\n
     `sessionID`, `sessionPass` and `auth` are all given by the client\n
     Used for the specified `auth` to disconnect from the session under `id`\n
     """
-    if sessionList[int(sessionID)]:
-        if sessionList[int(sessionID)].GetInternalPass() == sessionPass:
-            sessionList[int(sessionID)].RemoveUser(auth)
-            if not sessionList[int(sessionID)].GetAlive():
-                sessionList[int(sessionID)] == None
-            return "Disconnected"
-        else:
-            return "Incorrect password"
-    else:
-        return "Invalid Session"
 
-@app.route("/AddSong/<sessionID>/<sessionPass>/<songURI>", methods=["POST"])
-def AddSong(sessionID, sessionPass, songURI):
+    args = request.args.to_dict()
+
+    if args["sessionID"] and args["sessionPass"] and args["auth"]:
+        if sessionList[int(args["sessionID"])]:
+            if sessionList[int(args["sessionID"])].GetInternalPass() == args["sessionPass"]:
+                sessionList[int(args["sessionID"])].RemoveUser(args["auth"])
+                if not sessionList[int(args["sessionID"])].GetAlive():
+                    sessionList[int(args["sessionID"])] == None
+                return "Disconnected"
+            else:
+                return "Incorrect password"
+        else:
+            return "Invalid Session"
+    else:
+        return "Invalid Parameters"
+
+@app.route("/AddSong", methods=["POST"])
+def AddSong():
     """
     Ran when `/AddSong/<sessionID>/<sessionPass>/<songURI>` requested\n
     `sessionID`, `sessionPass` and `songURI` are all given in the request\n
     queues the song specified by `songURI` to session under `sessionID`\n
     returns a message on if it succeded or not
     """
-    if sessionList[int(sessionID)]:
-        if sessionList[int(sessionID)].GetInternalPass() == sessionPass:
-            sessionList[int(sessionID)].QueueSong(songURI)
-            return "Song queued successfully :)"
+    args = request.args.to_dict()
+
+    if args["sessionID"] and args["sessonPass"] and args["songURI"]:
+        if sessionList[int(args["sessionID"])]:
+            if sessionList[int(args["sessionID"])].GetInternalPass() == args["sessonPass"]:
+                sessionList[int(args["sessionID"])].QueueSong(args["songURI"])
+                return "Song queued successfully :)"
+            else:
+                return "The password is incorrect for this session"
         else:
-            return "The password is incorrect for this session"
+            return "Sorry, the session isn't active"
     else:
-        return "Sorry, the session isn't active"
+        return "Missing Parameters"
+
+@app.route("/SkipSong", methods=["POST"])
+def SkipSong():
+    args = request.args.to_dict()
+    if args["sessionID"] and args["sessonPass"]:
+        if sessionList[int(args["sessionID"])]:
+            if sessionList[int(args["sessionID"])].GetInternalPass() == args["sessonPass"]:
+                sessionList[int(args["sessionID"])].SkipSong()
+            else:
+                return "The password is incorrect for this session"
+        else:
+            return "Sorry, the session isn't active"
+    else:
+        return "Missing Parameters"
 
 ########################################################################################################
 #                                          - Call Functions -                                          #

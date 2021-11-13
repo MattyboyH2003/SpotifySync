@@ -32,7 +32,7 @@ print(result)
 
 #If succesfully joined server
 if result["success"]:
-    print(f"You have sucessfully joined session {sessionNo}")
+    print(result["message"])
     internalPass = result["internalPass"]
 else:
     print(f"Unable to join session")
@@ -43,7 +43,7 @@ while True:
     disconnect = int(input("Would you like to disconnect from the session?\n0: No\n1: Yes\n"))
     
     if disconnect:
-        result = http.request("POST", f"{serverRoot}/LeaveSession/{sessionNo}/{internalPass}/{auth}")
+        result = http.request("POST", f"{serverRoot}/LeaveSession?sessionID={sessionNo}&sessionPass={internalPass}&auth={auth}")
         print(result.data)
         break
 
@@ -67,7 +67,7 @@ while True:
     songNo = int(input("\nWhich song would you like? (number) \n"))
     songURI = result["tracks"]["items"][songNo-1]["uri"]
 
-    result = http.request("POST", f"{serverRoot}/AddSong/{sessionNo}/{internalPass}/{songURI}")
+    result = http.request("POST", f"{serverRoot}/AddSong?sessionID={sessionNo}&sessonPass={internalPass}&songURI{songURI}")
 
     print(result.data)
 
