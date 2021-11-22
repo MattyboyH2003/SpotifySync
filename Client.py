@@ -67,7 +67,7 @@ while True:
     songNo = int(input("\nWhich song would you like? (number) \n"))
     songURI = result["tracks"]["items"][songNo-1]["uri"]
 
-    result = http.request("POST", f"{serverRoot}/AddSong?sessionID={sessionNo}&sessonPass={internalPass}&songURI{songURI}")
+    result = http.request("POST", f"{serverRoot}/AddSong?sessionID={sessionNo}&sessionPass={internalPass}&songURI={songURI}")
 
     print(result.data)
 
